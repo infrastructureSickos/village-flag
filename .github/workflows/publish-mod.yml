@@ -57,6 +57,15 @@ jobs:
           MODRINTH_VERSION_ID=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
           echo "version_id=${MODRINTH_VERSION_ID}" >> $GITHUB_OUTPUT
 
+      - name: Update Modrinth project categories
+        run: |
+          curl -sf -X PATCH \
+            -H "Authorization: ${{ secrets.MODRINTH_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"categories": ["game-mechanics"]}' \
+            "https://api.modrinth.com/v2/project/${{ secrets.MODRINTH_PROJECT_ID }}"
+        if: startsWith(github.ref, 'refs/tags/v')
+
       - name: Update modpack mods-list
         run: |
           git clone "https://x-access-token:${{ secrets.GH_PAT }}@github.com/infrastructureSickos/server.git" server-repo
